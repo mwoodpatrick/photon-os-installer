@@ -7,18 +7,21 @@ RELEASE=5.0
 ISO=photon-5.0-dde71ec57.x86_64.iso
 BOOT_DISK=photon-${RELEASE}.qcow2
 MEMORY=4G
-# qemu-img create -f qcow2 ${BOOT_DISK} 16G
+
+function photon::create_boot_disk {
+    qemu-img create -f qcow2 ${BOOT_DISK} 16G
+}
 
 function photon::download {
-    wget https://packages.vmware.com/photon/${RELEASE}/GA/iso/ISO
+    wget https://packages.vmware.com/photon/${RELEASE}/GA/iso/${ISO}
 }
 
 function photon::install {
-    qemu-system-x86_64 -drive id=disk,file=${BOOT_DISK} -drive id=cdrom,file=$ISO,media=cdrom,if=none,read-only=on -device ahci,id=ahci -device ide-hd,drive=disk,bus=ahci.0 -device ide-cd,drive=cdrom,bus=ahci.1 -m ${MEMORY}
+    qemu-system-x86_64 -drive id=disk,file=${BOOT_DISK} -drive id=cdrom,file=${ISO},media=cdrom,if=none,read-only=on -device ahci,id=ahci -device ide-hd,drive=disk,bus=ahci.0 -device ide-cd,drive=cdrom,bus=ahci.1 -m ${MEMORY}
 }
 
 function photon::boot {
-    qemu-system-x86_64 -drive id=disk,file=${BOOT_DISK} -device ahci,id=ahci -device ide-hd,drive=disk,bus=ahci.0 -m ${MEMORY}
+    qemu-system-x86_64 -drive id=disk,file=${BOOT_DISK},if=none -device ahci,id=ahci -device ide-hd,drive=disk,bus=ahci.0 -m ${MEMORY}
 }
 
 echo $QEMU_DIR
